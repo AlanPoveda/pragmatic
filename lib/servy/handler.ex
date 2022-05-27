@@ -28,7 +28,7 @@ defmodule Servy.Handler do
     """
     HTTP/1.1 200 OK
     Content-Type: text/html
-    Content-lenght: #{String.length(conv.resp_body)}
+    Content-lenght: #{byte_size(conv.resp_body)}
 
     #{conv.resp_body}
     """
