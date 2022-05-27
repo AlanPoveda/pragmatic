@@ -2,10 +2,29 @@ defmodule Servy.Handler do
   def handle(request) do
     request
     |> parse()
+    |> rewrite_path()
     |> log()
     |> route()
+    |> track()
     |> format_response()
   end
+
+  # Fazer o traking e visualizar qual path que esta se perdendo
+  def track(%{status: 404, path: path} = conv) do
+    IO.puts("Warning, the path #{path} is on the lose")
+    conv
+  end
+
+  # Fazendo uma padrão pois todas vai passar por aqui
+  def track(conv), do: conv
+
+  # Aqui é para sobrescrever um pacote que venha de forma diferente
+  def rewrite_path(%{path: "/wildlife"} = conv) do
+    %{conv | path: "wildthings"}
+  end
+
+  # É necessária esta validação, pois todas vao passar por este lado, então só para retornar
+  def rewrite_path(conv), do: conv
 
   def log(conv), do: IO.inspect(conv)
 
@@ -43,6 +62,11 @@ defmodule Servy.Handler do
     %{conv | resp_body: "Bears #{id}", status: 200}
   end
 
+  # Este daqui é o delete
+  def route(conv, "DELETE", "/bears/" <> id) do
+    %{conv | resp_body: "You can't delete a bear", status: 403}
+  end
+
   def route(conv, _method, path) do
     %{conv | resp_body: "Not found a #{path}", status: 404}
   end
@@ -63,6 +87,7 @@ defmodule Servy.Handler do
     %{
       200 => "OK",
       201 => "Created",
+      204 => "Resource deleted successfully",
       401 => "Unauthorized",
       403 => "Forbidden",
       404 => "Not Found",
@@ -70,6 +95,18 @@ defmodule Servy.Handler do
     }[code]
   end
 end
+
+
+# Exemplo padrão agora usando outro path que vai fazer o rewrite
+request = """
+GET /wildlife http/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Servy.Handler.handle(request)
 
 # Exemplo padrão
 request = """
@@ -113,6 +150,20 @@ IO.puts(response)
 # Exemplo usando um id
 request = """
 GET /bears/1 http/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Servy.Handler.handle(request)
+
+IO.puts(response)
+
+# Este daqui é para fazer o método delete
+
+request  =  """
+DELETE /bears/1 HTTP/1.1
 Host: example.com
 User-Agent: ExampleBrowser/1.0
 Accept: */*
