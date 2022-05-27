@@ -20,7 +20,12 @@ defmodule Servy.Handler do
 
   # Aqui é para sobrescrever um pacote que venha de forma diferente
   def rewrite_path(%{path: "/wildlife"} = conv) do
-    %{conv | path: "wildthings"}
+    %{conv | path: "/wildthings"}
+  end
+
+  # Exercído para rescrever quando vem com o id
+  def rewrite_path(%{path: "/bears?id=" <> id} = conv) do
+    %{conv | path: "/bears/#{id}"}
   end
 
   # É necessária esta validação, pois todas vao passar por este lado, então só para retornar
@@ -158,6 +163,22 @@ IO.puts(response)
 
 request = """
 DELETE /bears/1 HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Servy.Handler.handle(request)
+
+IO.puts(response)
+
+
+
+# Exercício
+
+request = """
+GET /bears?id=1 HTTP/1.1
 Host: example.com
 User-Agent: ExampleBrowser/1.0
 Accept: */*
