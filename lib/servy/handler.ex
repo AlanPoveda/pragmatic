@@ -7,20 +7,30 @@ defmodule Servy.Handler do
   end
 
   def parse(request) do
-    conv = %{method: "GET", path: "/wildthings", resp_body: ""}
+    # Aqui estou pegando a primeira linha do texto que estou pegando.
+    [method, path, _] =
+      request
+      |> String.split("\n")
+      |> List.first()
+      |> String.split(" ")
+
+    # Isto é o retorno dessa função
+    %{method: method, path: path, resp_body: ""}
   end
 
-  def route(cnv) do
-    conv = %{method: "GET", path: "/wildthings", resp_body: "Bears, Lions, Tigers"}
+  def route(conv) do
+    # Uma forma elegante e simples e modificar o map
+    %{conv | resp_body: "Bears, Lions, Tigers"}
   end
 
   def format_response(conv) do
+    # Aqui mostra como contatenar a string de forma dinâmica! até podeno usar funções para isso
     """
     HTTP/1.1 200 OK
     Content-Type: text/html
-    Content-lenght: 20
+    Content-lenght: #{String.length(conv.resp_body)}
 
-    Bears, Lions, Tigers
+    #{conv.resp_body}
     """
   end
 end
