@@ -40,34 +40,29 @@ defmodule Servy.Handler do
     %{method: method, path: path, resp_body: "", status: nil}
   end
 
-  # Aqui é uma recursividade que irá receber o mapa, e o pacote
-  def route(conv) do
-    route(conv, conv.method, conv.path)
-  end
-
   # Nesse caso daqui é para se tiver esses dados de wildtings ele entra aqui
-  def route(conv, "GET", "/wildthings") do
+  def route(%{method: "GET", path: "wildthings"} = conv) do
     # Uma forma elegante e simples e modificar o map
     %{conv | resp_body: "Bears, Lions, Tigers", status: 200}
   end
 
   # Nesse caso daqui é para se tiver esses dados de bears ele entra aqui
-  def route(conv, "GET", "/bears") do
+  def route(%{method: "GET", path: "/bears"} = conv) do
     %{conv | resp_body: "Tomato, Potato, Gabs", status: 200}
   end
 
   # Nesse caso daqui bears/1 que seria o id, só que usa o pattern maching com concatenação
-  def route(conv, "GET", "/bears/" <> id) do
+  def route(%{method: "GET", path: "/bears/" <> id} = conv) do
     # Uma forma elegante e simples e modificar o map
     %{conv | resp_body: "Bears #{id}", status: 200}
   end
 
   # Este daqui é o delete
-  def route(conv, "DELETE", "/bears/" <> id) do
+  def route(%{method: "DELETE", path: "/bears/" <> id} = conv) do
     %{conv | resp_body: "You can't delete a bear", status: 403}
   end
 
-  def route(conv, _method, path) do
+  def route(%{path: path} = conv) do
     %{conv | resp_body: "Not found a #{path}", status: 404}
   end
 
@@ -95,7 +90,6 @@ defmodule Servy.Handler do
     }[code]
   end
 end
-
 
 # Exemplo padrão agora usando outro path que vai fazer o rewrite
 request = """
@@ -162,7 +156,7 @@ IO.puts(response)
 
 # Este daqui é para fazer o método delete
 
-request  =  """
+request = """
 DELETE /bears/1 HTTP/1.1
 Host: example.com
 User-Agent: ExampleBrowser/1.0
