@@ -5,9 +5,17 @@ defmodule Servy.Handler do
     |> rewrite_path()
     |> log()
     |> route()
+    |> emojify()
     |> track()
     |> format_response()
   end
+
+  def emojify(%{status: 200, resp_body: resp_body} = conv) do
+    emojis = String.duplicate("🐱", 5)
+    %{conv | resp_body: emojis <> resp_body <> emojis}
+  end
+
+  def emojify(conv), do: conv
 
   # Fazer o traking e visualizar qual path que esta se perdendo
   def track(%{status: 404, path: path} = conv) do
