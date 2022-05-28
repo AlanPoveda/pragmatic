@@ -1,4 +1,7 @@
 defmodule Servy.Handler do
+
+  require Logger
+
   def handle(request) do
     request
     |> parse()
@@ -19,7 +22,7 @@ defmodule Servy.Handler do
 
   # Fazer o traking e visualizar qual path que esta se perdendo
   def track(%{status: 404, path: path} = conv) do
-    IO.puts("Warning, the path #{path} is on the lose")
+    Logger.warn("Warning, the path #{path} is on the lose")
     conv
   end
 
@@ -38,16 +41,11 @@ defmodule Servy.Handler do
 
   # def rewrite_path(conv), do: conv
 
-  # É necessária esta validação, pois todas vao passar por este lado, então só para retornar
-
-  # Forma feita usando regex e pegando o ID
   def rewrite_path(%{path: path} = conv) do
     regex = ~r{\/(?<thing>\w+)\?id=(?<id>\d+)}
     captures = Regex.named_captures(regex, path)
     rewrite_path_captures(conv, captures)
   end
-
-  def rewrite_path(conv), do: conv
 
   def rewrite_path_captures(conv, %{"thing" => thing, "id" => id}) do
     %{ conv | path: "/#{thing}/#{id}" }
@@ -55,6 +53,7 @@ defmodule Servy.Handler do
 
   def rewrite_path_captures(conv, nil), do: conv
 
+  # É necessária esta validação, pois todas vao passar por este lado, então só para retornar # Forma feita usando regex e pegando o ID
   def log(conv), do: IO.inspect(conv)
 
   def parse(request) do
@@ -88,7 +87,8 @@ defmodule Servy.Handler do
 
   # Este daqui é o delete
   def route(%{method: "DELETE", path: "/bears/" <> id} = conv) do
-    %{conv | resp_body: "You can't delete a bear", status: 403}
+    #Logger.info("Tou can't delete a bear")
+    %{conv | resp_body: "You can't delete a bear #{id}", status: 403}
   end
 
   def route(%{path: path} = conv) do
@@ -130,6 +130,8 @@ Accept: */*
 """
 
 response = Servy.Handler.handle(request)
+
+IO.puts(response)
 
 # Exemplo padrão
 request = """
