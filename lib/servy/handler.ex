@@ -1,5 +1,4 @@
 defmodule Servy.Handler do
-
   require Logger
 
   def handle(request) do
@@ -14,7 +13,7 @@ defmodule Servy.Handler do
   end
 
   def emojify(%{status: 200, resp_body: resp_body} = conv) do
-    emojis = String.duplicate("🐱", 5)
+    emojis = String.duplicate("🐻", 5)
     %{conv | resp_body: emojis <> resp_body <> emojis}
   end
 
@@ -34,13 +33,7 @@ defmodule Servy.Handler do
     %{conv | path: "/wildthings"}
   end
 
-  # Exercído para rescrever quando vem com o id
-  # def rewrite_path(%{path: "/bears?id=" <> id} = conv) do
-  #   %{conv | path: "/bears/#{id}"}
-  # end
-
-  # def rewrite_path(conv), do: conv
-
+  # Forma feita usando regex e pegando o ID
   def rewrite_path(%{path: path} = conv) do
     regex = ~r{\/(?<thing>\w+)\?id=(?<id>\d+)}
     captures = Regex.named_captures(regex, path)
@@ -48,12 +41,13 @@ defmodule Servy.Handler do
   end
 
   def rewrite_path_captures(conv, %{"thing" => thing, "id" => id}) do
-    %{ conv | path: "/#{thing}/#{id}" }
+    %{conv | path: "/#{thing}/#{id}"}
   end
 
   def rewrite_path_captures(conv, nil), do: conv
 
-  # É necessária esta validação, pois todas vao passar por este lado, então só para retornar # Forma feita usando regex e pegando o ID
+  # É necessária esta validação, pois todas vao passar por este lado,
+  # então só para retornar
   def log(conv), do: IO.inspect(conv)
 
   def parse(request) do
@@ -64,12 +58,12 @@ defmodule Servy.Handler do
       |> List.first()
       |> String.split(" ")
 
-    # Isto é o retorno dessa função
+    # Isto é o retorno dessa função, um map com a arr
     %{method: method, path: path, resp_body: "", status: nil}
   end
 
   # Nesse caso daqui é para se tiver esses dados de wildtings ele entra aqui
-  def route(%{method: "GET", path: "wildthings"} = conv) do
+  def route(%{method: "GET", path: "/wildthings"} = conv) do
     # Uma forma elegante e simples e modificar o map
     %{conv | resp_body: "Bears, Lions, Tigers", status: 200}
   end
@@ -85,9 +79,35 @@ defmodule Servy.Handler do
     %{conv | resp_body: "Bears #{id}", status: 200}
   end
 
+  def route(%{method: "GET", path: "/about"} = conv) do
+    Path.expand("../../pages", __DIR__)
+    |> Path.join("about.html")
+    |> File.read()
+    |> handle_read(conv)
+  end
+
+  def handle_read({:ok, content}, conv), do: %{conv | status: 200, resp_body: content}
+
+  def handle_read({:error, :enoent}, conv), do: %{conv | status: 404, resp_body: "File not found"}
+
+  def handle_read({:error, reason}, conv), do: %{conv | status: 500, resp_body: "File error, reason #{reason}"}
+
+  # # Aqui ele esta lendo o file da page, e esta retornando um status ou o conteúdo da page
+  # def route(%{method: "GET", path: "/about"} = conv) do
+  #   file  =
+  #     Path.expand("../../pages", __DIR__)
+  #     |> Path.join("about.html")
+
+  #   case File.read(file) do
+  #     {:ok, content} -> %{conv | status: 200, resp_body: content}
+  #     {:error, :enoent} -> %{conv | status: 404, resp_body: "File not found"}
+  #     {:error, reason} -> %{conv | status: 500, resp_body: "File error #{reason}"}
+  #   end
+  # end
+
   # Este daqui é o delete
   def route(%{method: "DELETE", path: "/bears/" <> id} = conv) do
-    #Logger.info("Tou can't delete a bear")
+    # Logger.info("Tou can't delete a bear")
     %{conv | resp_body: "You can't delete a bear #{id}", status: 403}
   end
 
@@ -199,12 +219,22 @@ response = Servy.Handler.handle(request)
 
 IO.puts(response)
 
-
-
 # Exercício
 
 request = """
 GET /bears?id=1 HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Servy.Handler.handle(request)
+
+IO.puts(response)
+
+request = """
+GET /about http/1.1
 Host: example.com
 User-Agent: ExampleBrowser/1.0
 Accept: */*
