@@ -1,4 +1,7 @@
 defmodule Servy.Parser do
+
+  alias Servy.Conv, as: Conv
+
   def parse(request) do
     # Aqui estou pegando a primeira linha do texto que estou pegando.
     [method, path, _] =
@@ -8,6 +11,6 @@ defmodule Servy.Parser do
       |> String.split(" ")
 
     # Isto é o retorno dessa função, um map com a arr
-    %{method: method, path: path, resp_body: "", status: nil}
+    %Conv{method: method, path: path}
   end
 end

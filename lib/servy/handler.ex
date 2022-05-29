@@ -9,6 +9,7 @@ defmodule Servy.Handler do
   import Servy.Parser, only: [parse: 1]
   import Servy.FileHandler, only: [handle_read: 2]
 
+  alias Servy.Conv, as: Conv
   @doc """
   Transform the request a response
   """
@@ -24,18 +25,18 @@ defmodule Servy.Handler do
   end
 
   # Nesse caso daqui é para se tiver esses dados de wildtings ele entra aqui
-  def route(%{method: "GET", path: "/wildthings"} = conv) do
+  def route(%Conv{method: "GET", path: "/wildthings"} = conv) do
     # Uma forma elegante e simples e modificar o map
     %{conv | resp_body: "Bears, Lions, Tigers", status: 200}
   end
 
   # Nesse caso daqui é para se tiver esses dados de bears ele entra aqui
-  def route(%{method: "GET", path: "/bears"} = conv) do
+  def route(%Conv{method: "GET", path: "/bears"} = conv) do
     %{conv | resp_body: "Tomato, Potato, Gabs", status: 200}
   end
 
   # Nesse caso daqui bears/1 que seria o id, só que usa o pattern maching com concatenação
-  def route(%{method: "GET", path: "/bears/" <> id} = conv) do
+  def route(%Conv{method: "GET", path: "/bears/" <> id} = conv) do
     # Uma forma elegante e simples e modificar o map
     %{conv | resp_body: "Bears #{id}", status: 200}
   end
@@ -54,7 +55,7 @@ defmodule Servy.Handler do
   # end
 
   # Rota da pagina About e nesse caso esta usando um Module atribute
-  def route(%{method: "GET", path: "/about"} = conv) do
+  def route(%Conv{method: "GET", path: "/about"} = conv) do
     # Path.expand("../../pages", __DIR__)
     @pages_path
     |> Path.join("about.html")
@@ -63,7 +64,7 @@ defmodule Servy.Handler do
   end
 
   # Pegando a page de forma genérica
-  def route(%{method: "GET", path: "/about" <> page} = conv) do
+  def route(%Conv{method: "GET", path: "/about" <> page} = conv) do
     @pages_path
     |> Path.join(page)
     |> File.read()
@@ -83,7 +84,7 @@ defmodule Servy.Handler do
   #   end
   # end
 
-  def route(%{method: "GET", path: "/bears/new" = conv}) do
+  def route(%Conv{method: "GET", path: "/bears/new" = conv}) do
     Path.expand("../../pages", __DIR__)
     |> Path.join("form.html")
     |> File.read()
@@ -93,19 +94,21 @@ defmodule Servy.Handler do
 
 
   # Este daqui é o delete
-  def route(%{method: "DELETE", path: "/bears/" <> id} = conv) do
+  def route(%Conv{method: "DELETE", path: "/bears/" <> id} = conv) do
     # Logger.info("Tou can't delete a bear")
     %{conv | resp_body: "You can't delete a bear #{id}", status: 403}
   end
 
-  def route(%{path: path} = conv) do
+  def route(%Conv{path: path} = conv) do
     %{conv | resp_body: "Not found a #{path}", status: 404}
   end
 
-  def format_response(conv) do
+  def format_response(%Conv{} = conv) do
     # Aqui mostra como contatenar a string de forma dinâmica! até podeno usar funções para isso
+    # Outra coisa é o uso de funções estabelecidas no struc para poder criar a resposta
+    # Tudo de form dinâmica
     """
-    HTTP/1.1 #{conv.status} #{status_reason(conv.status)}
+    HTTP/1.1 #{Conv.full_status(conv)}
     Content-Type: text/html
     Content-lenght: #{byte_size(conv.resp_body)}
 
@@ -113,18 +116,7 @@ defmodule Servy.Handler do
     """
   end
 
-  # Esta é uma forma bem diferente de achar o value da key num map. %{}[key]
-  defp status_reason(code) do
-    %{
-      200 => "OK",
-      201 => "Created",
-      204 => "Resource deleted successfully",
-      401 => "Unauthorized",
-      403 => "Forbidden",
-      404 => "Not Found",
-      500 => "Internal server error"
-    }[code]
-  end
+
 end
 
 # Exemplo padrão agora usando outro path que vai fazer o rewrite
