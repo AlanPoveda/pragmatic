@@ -86,6 +86,26 @@ defmodule Servy.Handler do
     |> handle_read(conv)
   end
 
+  # Exercido feito usando Case
+  # def route(%{method: "GET", path: "/bears/new"} = conv) do
+  #   file =
+  #     Path.expand("../../pages", __DIR__)
+  #     |> Path.join("form.html")
+
+  #   case File.read(file) do
+  #     {:ok, content} -> %{ conv | status: 200, resp_body: content}
+  #     {:error, :enoent} -> %{ conv | status: 404, resp_body: "File not found"}
+  #     {:error, reason} -> %{ conv | status: 500, resp_body: "File error, reason #{reason}"}
+  #   end
+  # end
+
+  def route(%{method: "GET", path: "/bears/new" = conv}) do
+    Path.expand("../../pages", __DIR__)
+    |> Path.join("form.html")
+    |> File.read()
+    |> handle_read(conv)
+  end
+
   def handle_read({:ok, content}, conv), do: %{conv | status: 200, resp_body: content}
 
   def handle_read({:error, :enoent}, conv), do: %{conv | status: 404, resp_body: "File not found"}
@@ -104,6 +124,8 @@ defmodule Servy.Handler do
   #     {:error, reason} -> %{conv | status: 500, resp_body: "File error #{reason}"}
   #   end
   # end
+
+
 
   # Este daqui é o delete
   def route(%{method: "DELETE", path: "/bears/" <> id} = conv) do
@@ -235,6 +257,21 @@ IO.puts(response)
 
 request = """
 GET /about http/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Servy.Handler.handle(request)
+
+IO.puts(response)
+
+
+## Exercício
+
+request = """
+GET /bears/new HTTP/1.1
 Host: example.com
 User-Agent: ExampleBrowser/1.0
 Accept: */*
