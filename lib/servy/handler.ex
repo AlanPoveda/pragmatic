@@ -79,9 +79,31 @@ defmodule Servy.Handler do
     %{conv | resp_body: "Bears #{id}", status: 200}
   end
 
+    # # Aqui ele esta lendo o file da page, e esta retornando um status ou o conteúdo da page
+  # def route(%{method: "GET", path: "/about"} = conv) do
+  #   file  =
+  #     Path.expand("../../pages", __DIR__)
+  #     |> Path.join("about.html")
+
+  #   case File.read(file) do
+  #     {:ok, content} -> %{conv | status: 200, resp_body: content}
+  #     {:error, :enoent} -> %{conv | status: 404, resp_body: "File not found"}
+  #     {:error, reason} -> %{conv | status: 500, resp_body: "File error #{reason}"}
+  #   end
+  # end
+
+  # Rota da pagina About
   def route(%{method: "GET", path: "/about"} = conv) do
     Path.expand("../../pages", __DIR__)
     |> Path.join("about.html")
+    |> File.read()
+    |> handle_read(conv)
+  end
+
+  # Pegando a page de forma genérica
+  def route(%{method: "GET", path: "/about" <> page} = conv) do
+    Path.expand("../../pages", __DIR__)
+    |> Path.join(page)
     |> File.read()
     |> handle_read(conv)
   end
@@ -112,18 +134,7 @@ defmodule Servy.Handler do
 
   def handle_read({:error, reason}, conv), do: %{conv | status: 500, resp_body: "File error, reason #{reason}"}
 
-  # # Aqui ele esta lendo o file da page, e esta retornando um status ou o conteúdo da page
-  # def route(%{method: "GET", path: "/about"} = conv) do
-  #   file  =
-  #     Path.expand("../../pages", __DIR__)
-  #     |> Path.join("about.html")
 
-  #   case File.read(file) do
-  #     {:ok, content} -> %{conv | status: 200, resp_body: content}
-  #     {:error, :enoent} -> %{conv | status: 404, resp_body: "File not found"}
-  #     {:error, reason} -> %{conv | status: 500, resp_body: "File error #{reason}"}
-  #   end
-  # end
 
 
 
@@ -255,6 +266,7 @@ response = Servy.Handler.handle(request)
 
 IO.puts(response)
 
+
 request = """
 GET /about http/1.1
 Host: example.com
@@ -272,6 +284,20 @@ IO.puts(response)
 
 request = """
 GET /bears/new HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Servy.Handler.handle(request)
+
+IO.puts(response)
+
+
+# Exercídio pegar a página dinâmicamente
+request = """
+GET /about/about.html http/1.1
 Host: example.com
 User-Agent: ExampleBrowser/1.0
 Accept: */*
