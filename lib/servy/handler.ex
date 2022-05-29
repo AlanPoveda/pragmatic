@@ -1,6 +1,17 @@
 defmodule Servy.Handler do
-  require Logger
+  @moduledoc """
+  Handles HTTP requests
+  """
 
+  @pages_path Path.expand("../../pages", __DIR__)
+
+  import Servy.Plugins, only: [rewrite_path: 1, log: 1, emojify: 1, track: 1]
+  import Servy.Parser, only: [parse: 1]
+  import Servy.FileHandler, only: [handle_read: 2]
+
+  @doc """
+  Transform the request a response
+  """
   def handle(request) do
     request
     |> parse()
@@ -10,56 +21,6 @@ defmodule Servy.Handler do
     |> emojify()
     |> track()
     |> format_response()
-  end
-
-  def emojify(%{status: 200, resp_body: resp_body} = conv) do
-    emojis = String.duplicate("🐻", 5)
-    %{conv | resp_body: emojis <> resp_body <> emojis}
-  end
-
-  def emojify(conv), do: conv
-
-  # Fazer o traking e visualizar qual path que esta se perdendo
-  def track(%{status: 404, path: path} = conv) do
-    Logger.warn("Warning, the path #{path} is on the lose")
-    conv
-  end
-
-  # Fazendo uma padrão pois todas vai passar por aqui
-  def track(conv), do: conv
-
-  # Aqui é para sobrescrever um pacote que venha de forma diferente
-  def rewrite_path(%{path: "/wildlife"} = conv) do
-    %{conv | path: "/wildthings"}
-  end
-
-  # Forma feita usando regex e pegando o ID
-  def rewrite_path(%{path: path} = conv) do
-    regex = ~r{\/(?<thing>\w+)\?id=(?<id>\d+)}
-    captures = Regex.named_captures(regex, path)
-    rewrite_path_captures(conv, captures)
-  end
-
-  def rewrite_path_captures(conv, %{"thing" => thing, "id" => id}) do
-    %{conv | path: "/#{thing}/#{id}"}
-  end
-
-  def rewrite_path_captures(conv, nil), do: conv
-
-  # É necessária esta validação, pois todas vao passar por este lado,
-  # então só para retornar
-  def log(conv), do: IO.inspect(conv)
-
-  def parse(request) do
-    # Aqui estou pegando a primeira linha do texto que estou pegando.
-    [method, path, _] =
-      request
-      |> String.split("\n")
-      |> List.first()
-      |> String.split(" ")
-
-    # Isto é o retorno dessa função, um map com a arr
-    %{method: method, path: path, resp_body: "", status: nil}
   end
 
   # Nesse caso daqui é para se tiver esses dados de wildtings ele entra aqui
@@ -79,7 +40,7 @@ defmodule Servy.Handler do
     %{conv | resp_body: "Bears #{id}", status: 200}
   end
 
-    # # Aqui ele esta lendo o file da page, e esta retornando um status ou o conteúdo da page
+  # # Aqui ele esta lendo o file da page, e esta retornando um status ou o conteúdo da page
   # def route(%{method: "GET", path: "/about"} = conv) do
   #   file  =
   #     Path.expand("../../pages", __DIR__)
@@ -92,9 +53,10 @@ defmodule Servy.Handler do
   #   end
   # end
 
-  # Rota da pagina About
+  # Rota da pagina About e nesse caso esta usando um Module atribute
   def route(%{method: "GET", path: "/about"} = conv) do
-    Path.expand("../../pages", __DIR__)
+    # Path.expand("../../pages", __DIR__)
+    @pages_path
     |> Path.join("about.html")
     |> File.read()
     |> handle_read(conv)
@@ -102,7 +64,7 @@ defmodule Servy.Handler do
 
   # Pegando a page de forma genérica
   def route(%{method: "GET", path: "/about" <> page} = conv) do
-    Path.expand("../../pages", __DIR__)
+    @pages_path
     |> Path.join(page)
     |> File.read()
     |> handle_read(conv)
@@ -127,14 +89,6 @@ defmodule Servy.Handler do
     |> File.read()
     |> handle_read(conv)
   end
-
-  def handle_read({:ok, content}, conv), do: %{conv | status: 200, resp_body: content}
-
-  def handle_read({:error, :enoent}, conv), do: %{conv | status: 404, resp_body: "File not found"}
-
-  def handle_read({:error, reason}, conv), do: %{conv | status: 500, resp_body: "File error, reason #{reason}"}
-
-
 
 
 
@@ -266,7 +220,6 @@ response = Servy.Handler.handle(request)
 
 IO.puts(response)
 
-
 request = """
 GET /about http/1.1
 Host: example.com
@@ -278,7 +231,6 @@ Accept: */*
 response = Servy.Handler.handle(request)
 
 IO.puts(response)
-
 
 ## Exercício
 
@@ -293,7 +245,6 @@ Accept: */*
 response = Servy.Handler.handle(request)
 
 IO.puts(response)
-
 
 # Exercídio pegar a página dinâmicamente
 request = """
