@@ -33,7 +33,7 @@ defmodule Servy.Plugins do
   end
 
   def rewrite_path_captures(%Conv{} = conv, %{"thing" => thing, "id" => id}) do
-    %{conv | path: "/#{thing}/#{id}"}
+    %Conv{conv | path: "/#{thing}/#{id}"}
   end
 
   def rewrite_path_captures(%Conv{} = conv, nil), do: conv

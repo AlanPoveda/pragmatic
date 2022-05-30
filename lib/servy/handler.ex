@@ -27,18 +27,23 @@ defmodule Servy.Handler do
   # Nesse caso daqui é para se tiver esses dados de wildtings ele entra aqui
   def route(%Conv{method: "GET", path: "/wildthings"} = conv) do
     # Uma forma elegante e simples e modificar o map
-    %{conv | resp_body: "Bears, Lions, Tigers", status: 200}
+    %Conv{conv | resp_body: "Bears, Lions, Tigers", status: 200}
   end
 
   # Nesse caso daqui é para se tiver esses dados de bears ele entra aqui
   def route(%Conv{method: "GET", path: "/bears"} = conv) do
-    %{conv | resp_body: "Tomato, Potato, Gabs", status: 200}
+    %Conv{conv | resp_body: "Tomato, Potato, Gabs", status: 200}
   end
 
   # Nesse caso daqui bears/1 que seria o id, só que usa o pattern maching com concatenação
   def route(%Conv{method: "GET", path: "/bears/" <> id} = conv) do
     # Uma forma elegante e simples e modificar o map
-    %{conv | resp_body: "Bears #{id}", status: 200}
+    %Conv{conv | resp_body: "Bears #{id}", status: 200}
+  end
+
+  # Aqui é feito o método para criação de um urso
+  def route(%Conv{method: "POST", path: "/bears", params: params} = conv) do
+    %Conv{conv | status: 200, resp_body: "Create a #{params["type"]} Bear named #{params["name"]}!"}
   end
 
   # # Aqui ele esta lendo o file da page, e esta retornando um status ou o conteúdo da page
@@ -96,11 +101,11 @@ defmodule Servy.Handler do
   # Este daqui é o delete
   def route(%Conv{method: "DELETE", path: "/bears/" <> id} = conv) do
     # Logger.info("Tou can't delete a bear")
-    %{conv | resp_body: "You can't delete a bear #{id}", status: 403}
+    %Conv{conv | resp_body: "You can't delete a bear #{id}", status: 403}
   end
 
   def route(%Conv{path: path} = conv) do
-    %{conv | resp_body: "Not found a #{path}", status: 404}
+    %Conv{conv | resp_body: "Not found a #{path}", status: 404}
   end
 
   def format_response(%Conv{} = conv) do
@@ -250,3 +255,21 @@ Accept: */*
 response = Servy.Handler.handle(request)
 
 IO.puts(response)
+
+
+# Method POST
+
+request = """
+POST /bears HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 21
+
+name=Baloo&type=Brown
+"""
+
+response = Servy.Handler.handle(request)
+
+IO.puts response
