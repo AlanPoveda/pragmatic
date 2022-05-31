@@ -10,6 +10,7 @@ defmodule Servy.Handler do
   import Servy.FileHandler, only: [handle_read: 2]
 
   alias Servy.Conv, as: Conv
+  alias Servy.BearController
   @doc """
   Transform the request a response
   """
@@ -32,18 +33,18 @@ defmodule Servy.Handler do
 
   # Nesse caso daqui é para se tiver esses dados de bears ele entra aqui
   def route(%Conv{method: "GET", path: "/bears"} = conv) do
-    %Conv{conv | resp_body: "Tomato, Potato, Gabs", status: 200}
+    BearController.index(conv)
   end
 
   # Nesse caso daqui bears/1 que seria o id, só que usa o pattern maching com concatenação
   def route(%Conv{method: "GET", path: "/bears/" <> id} = conv) do
-    # Uma forma elegante e simples e modificar o map
-    %Conv{conv | resp_body: "Bears #{id}", status: 200}
+    params = Map.put(conv.params, "id", id)
+    BearController.show(conv, params)
   end
 
   # Aqui é feito o método para criação de um urso
   def route(%Conv{method: "POST", path: "/bears", params: params} = conv) do
-    %Conv{conv | status: 200, resp_body: "Create a #{params["type"]} Bear named #{params["name"]}!"}
+    BearController.create(conv, params)
   end
 
   # # Aqui ele esta lendo o file da page, e esta retornando um status ou o conteúdo da page
@@ -89,19 +90,20 @@ defmodule Servy.Handler do
   #   end
   # end
 
-  def route(%Conv{method: "GET", path: "/bears/new" = conv}) do
-    Path.expand("../../pages", __DIR__)
-    |> Path.join("form.html")
-    |> File.read()
-    |> handle_read(conv)
-  end
+  # def route(%Conv{method: "GET", path: "/bears/new"} = conv) do
+  #   Path.expand("../../pages", __DIR__)
+  #   |> Path.join("form.html")
+  #   |> File.read()
+  #   |> handle_read(conv)
+  # end
 
 
 
   # Este daqui é o delete
   def route(%Conv{method: "DELETE", path: "/bears/" <> id} = conv) do
+    BearController.delete(conv, id)
     # Logger.info("Tou can't delete a bear")
-    %Conv{conv | resp_body: "You can't delete a bear #{id}", status: 403}
+    #%Conv{conv | resp_body: "You can't delete a bear #{id}", status: 403}
   end
 
   def route(%Conv{path: path} = conv) do
@@ -231,17 +233,17 @@ IO.puts(response)
 
 ## Exercício
 
-request = """
-GET /bears/new HTTP/1.1
-Host: example.com
-User-Agent: ExampleBrowser/1.0
-Accept: */*
+# request = """
+# GET /bears/new HTTP/1.1
+# Host: example.com
+# User-Agent: ExampleBrowser/1.0
+# Accept: */*
 
-"""
+# """
 
-response = Servy.Handler.handle(request)
+# response = Servy.Handler.handle(request)
 
-IO.puts(response)
+# IO.puts(response)
 
 # Exercídio pegar a página dinâmicamente
 request = """
@@ -273,3 +275,18 @@ name=Baloo&type=Brown
 response = Servy.Handler.handle(request)
 
 IO.puts response
+
+
+
+# Exemplo de index
+request = """
+GET /bears http/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Servy.Handler.handle(request)
+
+IO.puts(response)
