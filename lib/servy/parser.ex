@@ -12,7 +12,8 @@ defmodule Servy.Parser do
 
     IO.inspect header_lines
 
-    headers = parse_headers(header_lines, %{})
+    #headers = parse_headers(header_lines, %{})
+    headers = parse_headers(header_lines)
 
     # Nesse caso ele somente vai pegar os parâmetros desse tipo, pois é do método POST
     params = parse_params(headers["Content-Type"], params_string)
@@ -21,17 +22,26 @@ defmodule Servy.Parser do
     %Conv{method: method, path: path, params: params, headers: headers}
   end
 
-  # Pegar os dados do header e transformar em map, usando recursividade
-  defp parse_headers([head | tail], headers) do
-    # Aqui faz a separação do Key e value
-    [key, value] = String.split(head, ": ")
-    # Criação do map, e ele recebe o map anterior, dessa forma ele adiciona!
-    header = Map.put(headers, key, value)
-    # Recusividade!, chama denovo somente a tail e começa o processo novamente
-    parse_headers(tail, header)
+
+  # Exercício usando reduce
+  def parse_headers(header_line) do
+    Enum.reduce(header_line, %{}, fn (head, acc) ->
+      [key, value] = String.split(head, ": ")
+      Map.put(acc, key, value)
+    end)
   end
 
-  defp parse_headers([], headers), do: headers
+  # Pegar os dados do header e transformar em map, usando recursividade
+  # defp parse_headers([head | tail], headers) do
+  #   # Aqui faz a separação do Key e value
+  #   [key, value] = String.split(head, ": ")
+  #   # Criação do map, e ele recebe o map anterior, dessa forma ele adiciona!
+  #   header = Map.put(headers, key, value)
+  #   # Recusividade!, chama denovo somente a tail e começa o processo novamente
+  #   parse_headers(tail, header)
+  # end
+
+  # defp parse_headers([], headers), do: headers
 
   defp parse_params("application/x-www-form-urlencoded", params_string) do
     params_string |> String.trim() |> URI.decode_query()
