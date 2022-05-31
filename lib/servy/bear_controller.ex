@@ -3,29 +3,31 @@ defmodule Servy.BearController do
   alias Servy.Wildthings
   alias Servy.Bear
 
+  # Aqui esta puxando os eex, os templates
+  @templates_path Path.expand("../../templates", __DIR__)
+
+  defp render(conv, path, binding) do
+    content =
+      @templates_path
+      |> Path.join(path)
+      |> EEx.eval_file(binding)
+
+    %Conv{conv | resp_body: content, status: 200}
+  end
+
   def index(conv) do
     bears =
       Wildthings.list_bears()
-      |> Enum.filter(&Bear.colombian_bear(&1))
       |> Enum.sort(&Bear.sort_by_name(&1,&2))
-      |> Enum.reduce("", fn bear, response ->
-        "<li>#{bear.name} -> #{bear.type}</li>" <> response
-      end)
 
-    # bears =
-    #   Wildthings.list_bears()
-    #   |> Enum.filter(fn b -> b.type == "Colombian" end)
-    #   |> Enum.sort(fn b1,b2 -> b1.name <= b2.name end)
-    #   |> Enum.map(fn b -> "<li>#{b.name} -> #{b.type}" end)
-    #   |> Enum.join()
-
-    %Conv{conv | resp_body: "<ul>#{bears}</ul>", status: 200}
+    render(conv, "index.eex", bears: bears)
   end
 
   # Nesse caso esta pegando somente o que vem com id, mas da para fazer de mais formas
   def show(conv, %{"id" => id}) do
     bear = Wildthings.get_bear(id)
-    %Conv{conv | resp_body: "<h1>Bear #{bear.id}: #{bear.name}</h1>", status: 200}
+
+    render(conv, "show.eex", bear: bear)
   end
 
   # Aqui pega as informações para o post e usa pattern macht para estrair melhor
