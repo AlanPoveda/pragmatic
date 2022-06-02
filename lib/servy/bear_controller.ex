@@ -23,7 +23,7 @@ defmodule Servy.BearController do
 
   # Aqui pega as informações para o post e usa pattern macht para estrair melhor
   def create(conv, %{"name" => name, "type" => type} = _params) do
-    %Conv{conv | status: 200, resp_body: "Create a #{type} Bear named #{name}!"}
+    %Conv{conv | status: 201, resp_body: "Created a #{type} bear named #{name}!"}
   end
 
 

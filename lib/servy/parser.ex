@@ -4,9 +4,9 @@ defmodule Servy.Parser do
 
   def parse(request) do
     # Aqui esta separando em duas partes, o request e os parametros enviados
-    [top,  params_string] = String.split(request, "\n\n")
+    [top,  params_string] = String.split(request, "\r\n\r\n")
     # Aqui serpara o Tipo  de requisição e os Headers info
-    [ request_line | header_lines ] = String.split(top, "\n")
+    [ request_line | header_lines ] = String.split(top, "\r\n")
     # Aqui já são as infmações do request!
     [method, path, _ ] = String.split(request_line, " ")
 

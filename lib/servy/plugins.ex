@@ -13,7 +13,9 @@ defmodule Servy.Plugins do
   # Fazer o traking e visualizar qual path que esta se perdendo
   @doc "Logs 404 request"
   def track(%Conv{status: 404, path: path} = conv) do
-    Logger.warn("Warning, the path #{path} is on the lose")
+    if Mix.env() != :test do
+      Logger.warn("Warning, the path #{path} is on the lose")
+    end
     conv
   end
 
@@ -40,5 +42,10 @@ defmodule Servy.Plugins do
 
   # É necessária esta validação, pois todas vao passar por este lado,
   # então só para retornar
-  def log(%Conv{} = conv), do: IO.inspect(conv)
+  def log(%Conv{} = conv) do
+    if Mix.env() == :dev do
+      IO.inspect(conv)
+    end
+    conv
+  end
 end
