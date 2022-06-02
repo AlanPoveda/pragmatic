@@ -3,17 +3,8 @@ defmodule Servy.BearController do
   alias Servy.Wildthings
   alias Servy.Bear
 
-  # Aqui esta puxando os eex, os templates
-  @templates_path Path.expand("../../templates", __DIR__)
+  import Servy.View, only: [render: 3]
 
-  defp render(conv, path, binding) do
-    content =
-      @templates_path
-      |> Path.join(path)
-      |> EEx.eval_file(binding)
-
-    %Conv{conv | resp_body: content, status: 200}
-  end
 
   def index(conv) do
     bears =
