@@ -31,10 +31,17 @@ defmodule Servy.Handler do
     %Conv{conv | resp_body: "Bears, Lions, Tigers", status: 200}
   end
 
+  def route(%Conv{method: "GET", path: "/api/bears"} = conv) do
+    Servy.Api.BearController.index(conv)
+  end
+
+
   # Nesse caso daqui é para se tiver esses dados de bears ele entra aqui
   def route(%Conv{method: "GET", path: "/bears"} = conv) do
     BearController.index(conv)
   end
+
+
 
   # Nesse caso daqui bears/1 que seria o id, só que usa o pattern maching com concatenação
   def route(%Conv{method: "GET", path: "/bears/" <> id} = conv) do
@@ -116,7 +123,7 @@ defmodule Servy.Handler do
     # Tudo de form dinâmica
     """
     HTTP/1.1 #{Conv.full_status(conv)}\r
-    Content-Type: text/html\r
+    Content-Type: #{conv.resp_content_type}\r
     Content-Length: #{byte_size(conv.resp_body)}\r
     \r
     #{conv.resp_body}

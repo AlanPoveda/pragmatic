@@ -193,6 +193,34 @@ defmodule HandlerTest do
            """
   end
 
+  test "GET /api/bears" do
+    request = """
+    GET /api/bears HTTP/1.1\r
+    Host: example.com\r
+    User-Agent: ExampleBrowser/1.0\r
+    Accept: */*\r
+    \r
+    """
+
+    response = handle(request)
+
+    expected_response = """
+    HTTP/1.1 200 OK\r
+    Content-Type:application/json\r
+    Content-Length:472\r
+    \r
+    🐻🐻🐻🐻🐻[{\"type\":\"Japanese\",\"name\":\"Pequena\",\"id\":1,\"hibernating\":true},
+    {\"type\":\"Colombian\",\"name\":\"David\",\"id\":2,\"hibernating\":true},
+    {\"type\":\"Colombian\",\"name\":\"Luz\",\"id\":3,\"hibernating\":true},
+    {\"type\":\"Colombian\",\"name\":\"Gaby\",\"id\":4,\"hibernating\":true},
+    {\"type\":\"Brazilian\",\"name\":\"Alan\",\"id\":5,\"hibernating\":true},
+    {\"type\":\"Brazilian\",\"name\":\"Adma\",\"id\":6,\"hibernating\":true},
+    {\"type\":\"Colombian\",\"name\":\"Neomax\",\"id\":7,\"hibernating\":true}]🐻🐻🐻🐻🐻
+    """
+
+    assert remove_whitespace(response) == remove_whitespace(expected_response)
+  end
+
   defp remove_whitespace(text) do
     String.replace(text, ~r{\s}, "")
   end
