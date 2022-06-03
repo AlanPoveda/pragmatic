@@ -79,6 +79,7 @@ defmodule Servy.Handler do
 
   # Pegando a page de forma genérica
   def route(%Conv{method: "GET", path: "/about" <> page} = conv) do
+
     @pages_path
     |> Path.join(page)
     |> File.read()
@@ -118,14 +119,18 @@ defmodule Servy.Handler do
     %Conv{conv | resp_body: "Not found a #{path}", status: 404}
   end
 
+  def put_content_length(%Conv{ resp_body: body} = _conv) do
+    byte_size(body)
+  end
+
   def format_response(%Conv{} = conv) do
     # Aqui mostra como contatenar a string de forma dinâmica! até podeno usar funções para isso
     # Outra coisa é o uso de funções estabelecidas no struc para poder criar a resposta
     # Tudo de form dinâmica
     """
     HTTP/1.1 #{Conv.full_status(conv)}\r
-    Content-Type: #{conv.resp_content_type}\r
-    Content-Length: #{byte_size(conv.resp_body)}\r
+    Content-Type: #{conv.resp_headers["Content-Type"]}\r
+    Content-Length: #{put_content_length(conv)}\r
     \r
     #{conv.resp_body}
     """
