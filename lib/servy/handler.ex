@@ -31,6 +31,7 @@ defmodule Servy.Handler do
     %Conv{conv | resp_body: "Bears, Lions, Tigers", status: 200}
   end
 
+  # Rota da api, para retornar a lista em formato de json
   def route(%Conv{method: "GET", path: "/api/bears"} = conv) do
     Servy.Api.BearController.index(conv)
   end

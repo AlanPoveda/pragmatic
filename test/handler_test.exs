@@ -209,13 +209,13 @@ defmodule HandlerTest do
     Content-Type:application/json\r
     Content-Length:472\r
     \r
-    🐻🐻🐻🐻🐻[{\"type\":\"Japanese\",\"name\":\"Pequena\",\"id\":1,\"hibernating\":true},
-    {\"type\":\"Colombian\",\"name\":\"David\",\"id\":2,\"hibernating\":true},
-    {\"type\":\"Colombian\",\"name\":\"Luz\",\"id\":3,\"hibernating\":true},
-    {\"type\":\"Colombian\",\"name\":\"Gaby\",\"id\":4,\"hibernating\":true},
-    {\"type\":\"Brazilian\",\"name\":\"Alan\",\"id\":5,\"hibernating\":true},
-    {\"type\":\"Brazilian\",\"name\":\"Adma\",\"id\":6,\"hibernating\":true},
-    {\"type\":\"Colombian\",\"name\":\"Neomax\",\"id\":7,\"hibernating\":true}]🐻🐻🐻🐻🐻
+    🐻🐻🐻🐻🐻[{"type":"Japanese","name":"Pequena","id":1,"hibernating":true},
+    {"type":"Colombian","name":"David","id":2,"hibernating":true},
+    {"type":"Colombian","name":"Luz","id":3,"hibernating":true},
+    {"type":"Colombian","name":"Gaby","id":4,"hibernating":true},
+    {"type":"Brazilian","name":"Alan","id":5,"hibernating":true},
+    {"type":"Brazilian","name":"Adma","id":6,"hibernating":true},
+    {"type":"Colombian","name":"Neomax","id":7,"hibernating":true}]🐻🐻🐻🐻🐻
     """
 
     assert remove_whitespace(response) == remove_whitespace(expected_response)
