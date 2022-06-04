@@ -10,8 +10,6 @@ defmodule Servy.Parser do
     # Aqui já são as infmações do request!
     [method, path, _ ] = String.split(request_line, " ")
 
-    IO.inspect header_lines
-
     #headers = parse_headers(header_lines, %{})
     headers = parse_headers(header_lines)
 
@@ -45,6 +43,10 @@ defmodule Servy.Parser do
 
   defp parse_params("application/x-www-form-urlencoded", params_string) do
     params_string |> String.trim() |> URI.decode_query()
+  end
+
+  defp parse_params("application/json", params_string) do
+    Poison.Parser.parse!(params_string, %{})
   end
 
   #Essa daqui ignora tudo o resto que seja de outro método sem ser o POST e retorna um map vazio

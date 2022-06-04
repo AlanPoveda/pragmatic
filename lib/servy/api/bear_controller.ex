@@ -15,4 +15,9 @@ defmodule Servy.Api.BearController do
     %Conv{ conv | resp_headers: new_header}
   end
 
+  def create(conv, %{"name" => name, "type" => type}) do
+    %Conv{conv | status: 201, resp_body: "Created a #{type} bear named #{name}!"}
+  end
+
+
 end

@@ -37,6 +37,11 @@ defmodule Servy.Handler do
     Servy.Api.BearController.index(conv)
   end
 
+  # Rota da api, para criar um urso, parando os parâmetros
+  def route(%Conv{method: "POST", path: "/api/bears", params: params} = conv) do
+    Servy.Api.BearController.create(conv, params)
+  end
+
 
   # Nesse caso daqui é para se tiver esses dados de bears ele entra aqui
   def route(%Conv{method: "GET", path: "/bears"} = conv) do
@@ -143,7 +148,6 @@ defmodule Servy.Handler do
   #   #{conv.resp_body}
   #   """
   # end
-
 
   def format_response(%Conv{} = conv) do
     # Aqui mostra como contatenar a string de forma dinâmica! até podeno usar funções para isso
