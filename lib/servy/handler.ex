@@ -22,6 +22,7 @@ defmodule Servy.Handler do
     |> route()
     |> emojify()
     |> track()
+    |> put_content_length()
     |> format_response()
   end
 
@@ -119,9 +120,30 @@ defmodule Servy.Handler do
     %Conv{conv | resp_body: "Not found a #{path}", status: 404}
   end
 
-  def put_content_length(%Conv{ resp_body: body} = _conv) do
-    byte_size(body)
+  def put_content_length(conv) do
+    headers = Map.put(conv.resp_headers, "Content-Length", byte_size(conv.resp_body))
+    %Conv{ conv | resp_headers: headers}
   end
+
+  defp format_response_headers(conv) do
+    for {key, value} <- conv.resp_headers do
+      "#{key}: #{value}\r"
+    end |> Enum.sort |> Enum.reverse |> Enum.join("\n")
+  end
+
+  # def format_response(%Conv{} = conv) do
+  #   # Aqui mostra como contatenar a string de forma dinâmica! até podeno usar funções para isso
+  #   # Outra coisa é o uso de funções estabelecidas no struc para poder criar a resposta
+  #   # Tudo de form dinâmica
+  #   """
+  #   HTTP/1.1 #{Conv.full_status(conv)}\r
+  #   Content-Type: #{conv.resp_headers["Content-Type"]}\r
+  #   Content-Length: #{conv.resp_headers["Content-Length"]}\r
+  #   \r
+  #   #{conv.resp_body}
+  #   """
+  # end
+
 
   def format_response(%Conv{} = conv) do
     # Aqui mostra como contatenar a string de forma dinâmica! até podeno usar funções para isso
@@ -129,8 +151,7 @@ defmodule Servy.Handler do
     # Tudo de form dinâmica
     """
     HTTP/1.1 #{Conv.full_status(conv)}\r
-    Content-Type: #{conv.resp_headers["Content-Type"]}\r
-    Content-Length: #{put_content_length(conv)}\r
+    #{format_response_headers(conv)}
     \r
     #{conv.resp_body}
     """
