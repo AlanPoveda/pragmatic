@@ -3,18 +3,6 @@ defmodule Servy.Wildthings do
 
   @bd_json Path.expand("../../db", __DIR__)
 
-  # def list_bears do
-  #   [
-  #     %Bear{id: 1, name: "Pequena", type: "Japanese", hibernating: true},
-  #     %Bear{id: 2, name: "David", type: "Colombian", hibernating: true},
-  #     %Bear{id: 3, name: "Luz", type: "Colombian", hibernating: true},
-  #     %Bear{id: 4, name: "Gaby", type: "Colombian", hibernating: true},
-  #     %Bear{id: 5, name: "Alan", type: "Brazilian", hibernating: true},
-  #     %Bear{id: 6, name: "Adma", type: "Brazilian", hibernating: true},
-  #     %Bear{id: 7, name: "Neomax", type: "Colombian", hibernating: true},
-  #   ]
-  # end
-
   def list_bears do
     @bd_json
     |> Path.join("bears.json")
