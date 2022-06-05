@@ -1,0 +1,46 @@
+{
+    "bears": [
+      {
+        "id": 1,
+        "name": "Pequena",
+        "type": "Japanese",
+        "hibernating": true
+      },
+      {
+        "id": 2,
+        "name": "David",
+        "type": "Colombian",
+        "hibernating": true
+      },
+      {
+        "id": 3,
+        "name": "Luz",
+        "type": "Colombian",
+        "hibernating": true
+      },
+      {
+        "id": 4,
+        "name": "Gaby",
+        "type": "Colombian",
+        "hibernating": true
+      },
+      {
+        "id": 5,
+        "name": "Alan",
+        "type": "Brazilian",
+        "hibernating": true
+      },
+      {
+        "id": 6,
+        "name": "Adma",
+        "type": "Brazilian",
+        "hibernating": true
+      },
+      {
+        "id": 7,
+        "name": "Neomax",
+        "type": "Colombian",
+        "hibernating": true
+      }
+    ]
+  }
