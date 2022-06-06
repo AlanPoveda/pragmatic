@@ -93,9 +93,9 @@ defmodule Servy.Handler do
   end
 
   # Pegar markdown e transformar em HTML
-  def route(%Conv{method: "GET", path: "/pages/" <> name} = conv) do
+  def route(%Conv{method: "GET", path: "/pages" <> name} = conv) do
     @pages_path
-    |> Path.join("#{name}.md")
+    |> Path.join("#{name}/#{name}.md")
     |> File.read
     |> handle_read(conv)
     |> markdown_to_html
