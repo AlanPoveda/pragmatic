@@ -92,6 +92,21 @@ defmodule Servy.Handler do
     |> handle_read(conv)
   end
 
+  # Pegar markdown e transformar em HTML
+  def route(%Conv{method: "GET", path: "/pages/" <> name} = conv) do
+    @pages_path
+    |> Path.join("#{name}.md")
+    |> File.read
+    |> handle_read(conv)
+    |> markdown_to_html
+  end
+
+  def markdown_to_html(%Conv{status: 200} = conv) do
+    %{ conv | resp_body: Earmark.as_html!(conv.resp_body) }
+  end
+
+  def markdown_to_html(%Conv{} = conv), do: conv
+
   # Exercido feito usando Case
   # def route(%{method: "GET", path: "/bears/new"} = conv) do
   #   file =
