@@ -11,6 +11,7 @@ defmodule Servy.Handler do
 
   alias Servy.Conv, as: Conv
   alias Servy.BearController
+
   @doc """
   Transform the request a response
   """
@@ -26,10 +27,15 @@ defmodule Servy.Handler do
     |> format_response()
   end
 
+  # Uma rota para parar o servidor, um erro
+  def route(%Conv{method: "GET", path: "/kaboom"}) do
+    raise "Kabumm !"
+  end
+
   # Uma rota para dormir
   def route(%Conv{method: "GET", path: "/hibernating/" <> timer} = conv) do
     timer |> String.to_integer() |> :timer.sleep()
-    %Conv{ conv | status: 200, resp_body: "Awake!"}
+    %Conv{conv | status: 200, resp_body: "Awake!"}
   end
 
   # Nesse caso daqui é para se tiver esses dados de wildtings ele entra aqui
@@ -48,13 +54,10 @@ defmodule Servy.Handler do
     Servy.Api.BearController.create(conv, params)
   end
 
-
   # Nesse caso daqui é para se tiver esses dados de bears ele entra aqui
   def route(%Conv{method: "GET", path: "/bears"} = conv) do
     BearController.index(conv)
   end
-
-
 
   # Nesse caso daqui bears/1 que seria o id, só que usa o pattern maching com concatenação
   def route(%Conv{method: "GET", path: "/bears/" <> id} = conv) do
@@ -91,7 +94,6 @@ defmodule Servy.Handler do
 
   # Pegando a page de forma genérica
   def route(%Conv{method: "GET", path: "/about" <> page} = conv) do
-
     @pages_path
     |> Path.join(page)
     |> File.read()
@@ -102,13 +104,13 @@ defmodule Servy.Handler do
   def route(%Conv{method: "GET", path: "/pages" <> name} = conv) do
     @pages_path
     |> Path.join("#{name}/#{name}.md")
-    |> File.read
+    |> File.read()
     |> handle_read(conv)
     |> markdown_to_html
   end
 
   def markdown_to_html(%Conv{status: 200} = conv) do
-    %{ conv | resp_body: Earmark.as_html!(conv.resp_body) }
+    %{conv | resp_body: Earmark.as_html!(conv.resp_body)}
   end
 
   def markdown_to_html(%Conv{} = conv), do: conv
@@ -133,13 +135,11 @@ defmodule Servy.Handler do
   #   |> handle_read(conv)
   # end
 
-
-
   # Este daqui é o delete
   def route(%Conv{method: "DELETE", path: "/bears/" <> id} = conv) do
     BearController.delete(conv, id)
     # Logger.info("Tou can't delete a bear")
-    #%Conv{conv | resp_body: "You can't delete a bear #{id}", status: 403}
+    # %Conv{conv | resp_body: "You can't delete a bear #{id}", status: 403}
   end
 
   def route(%Conv{path: path} = conv) do
@@ -148,13 +148,16 @@ defmodule Servy.Handler do
 
   def put_content_length(conv) do
     headers = Map.put(conv.resp_headers, "Content-Length", byte_size(conv.resp_body))
-    %Conv{ conv | resp_headers: headers}
+    %Conv{conv | resp_headers: headers}
   end
 
   defp format_response_headers(conv) do
     for {key, value} <- conv.resp_headers do
       "#{key}: #{value}\r"
-    end |> Enum.sort |> Enum.reverse |> Enum.join("\n")
+    end
+    |> Enum.sort()
+    |> Enum.reverse()
+    |> Enum.join("\n")
   end
 
   # def format_response(%Conv{} = conv) do
@@ -181,6 +184,4 @@ defmodule Servy.Handler do
     #{conv.resp_body}
     """
   end
-
-
 end
