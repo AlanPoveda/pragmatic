@@ -26,6 +26,12 @@ defmodule Servy.Handler do
     |> format_response()
   end
 
+  # Uma rota para dormir
+  def route(%Conv{method: "GET", path: "/hibernating/" <> timer} = conv) do
+    timer |> String.to_integer() |> :timer.sleep()
+    %Conv{ conv | status: 200, resp_body: "Awake!"}
+  end
+
   # Nesse caso daqui é para se tiver esses dados de wildtings ele entra aqui
   def route(%Conv{method: "GET", path: "/wildthings"} = conv) do
     # Uma forma elegante e simples e modificar o map
