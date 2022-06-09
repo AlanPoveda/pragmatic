@@ -51,7 +51,7 @@ defmodule Servy.HttpServer do
     IO.puts "⚡️  Connection accepted!\n"
 
     # Receives the request and sends a response over the client socket.
-    serve(client_socket)
+    spawn(fn -> serve(client_socket) end) # Usando o spawn apra ser um processo paralelo
 
     # Loop back to wait and accept the next connection.
     accept_loop(listen_socket)
@@ -62,6 +62,8 @@ defmodule Servy.HttpServer do
   sends a response back over the same socket.
   """
   def serve(client_socket) do
+    IO.puts("#{inspect self()}: Work on it") # Aqui para ver o processo que esta responsável
+
     client_socket
     |> read_request
     |> Servy.Handler.handle() #Aqui esta lendo todo o código com os request que foram criados.
