@@ -26,6 +26,10 @@ defmodule Servy.Handler do
     |> format_response()
   end
 
+  # Uma rota para parar o servidor, um erro
+  def route(%Conv{method: "GET", path: "/kaboom"}) do
+    raise "Kabumm !"
+  end
 
   # Uma rota para dormir
   def route(%Conv{method: "GET", path: "/hibernating/" <> timer} = conv) do
@@ -140,11 +144,6 @@ defmodule Servy.Handler do
   def route(%Conv{path: path} = conv) do
     %Conv{conv | resp_body: "Not found a #{path}", status: 404}
   end
-
-    # Uma rota para parar o servidor, um erro
-    def route(%Conv{method: "GET", path: "/kaboom"}) do
-      raise "Kabumm !"
-    end
 
   def put_content_length(conv) do
     headers = Map.put(conv.resp_headers, "Content-Length", byte_size(conv.resp_body))
