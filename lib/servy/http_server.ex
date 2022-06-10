@@ -52,7 +52,7 @@ defmodule Servy.HttpServer do
 
     # Receives the request and sends a response over the client socket.
     spawn(fn -> serve(client_socket) end) # Usando o spawn apra ser um processo paralelo
-
+    #serve(client_socket)
     # Loop back to wait and accept the next connection.
     accept_loop(listen_socket)
   end
