@@ -5,7 +5,7 @@ defmodule Servy.Handler do
 
   @pages_path Path.expand("../../pages", __DIR__)
 
-  import Servy.Plugins, only: [rewrite_path: 1, log: 1, emojify: 1, track: 1]
+  import Servy.Plugins, only: [rewrite_path: 1, emojify: 1, track: 1]
   import Servy.Parser, only: [parse: 1]
   import Servy.FileHandler, only: [handle_read: 2]
 
@@ -19,7 +19,6 @@ defmodule Servy.Handler do
     request
     |> parse()
     |> rewrite_path()
-    #|> log()
     |> route()
     |> emojify()
     |> track()
@@ -27,10 +26,6 @@ defmodule Servy.Handler do
     |> format_response()
   end
 
-  # Uma rota para parar o servidor, um erro
-  def route(%Conv{method: "GET", path: "/kaboom"}) do
-    raise "Kabumm !"
-  end
 
   # Uma rota para dormir
   def route(%Conv{method: "GET", path: "/hibernating/" <> timer} = conv) do
@@ -145,6 +140,11 @@ defmodule Servy.Handler do
   def route(%Conv{path: path} = conv) do
     %Conv{conv | resp_body: "Not found a #{path}", status: 404}
   end
+
+    # Uma rota para parar o servidor, um erro
+    def route(%Conv{method: "GET", path: "/kaboom"}) do
+      raise "Kabumm !"
+    end
 
   def put_content_length(conv) do
     headers = Map.put(conv.resp_headers, "Content-Length", byte_size(conv.resp_body))
