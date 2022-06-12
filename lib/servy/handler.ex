@@ -11,6 +11,7 @@ defmodule Servy.Handler do
 
   alias Servy.Conv, as: Conv
   alias Servy.BearController
+  alias Servy.VideoCam
 
   @doc """
   Transform the request a response
@@ -29,6 +30,26 @@ defmodule Servy.Handler do
   # Uma rota para parar o servidor, um erro
   def route(%Conv{method: "GET", path: "/kaboom"}) do
     raise "Kabumm !"
+  end
+
+  # Enviando mensagens e concurrency
+  def route(%Conv{method: "GET", path: "/snapshots"} = conv) do
+    parent = self()
+
+    spawn(fn -> send(parent, {:result, VideoCam.get_snapshot("cam-1")}) end)
+    spawn(fn -> send(parent, {:result, VideoCam.get_snapshot("cam-2")}) end)
+    spawn(fn -> send(parent, {:result, VideoCam.get_snapshot("cam-3")}) end)
+
+    snapshot1 = receive do {:result, message} -> message end
+    snapshot2 = receive do {:result, message} -> message end
+    snapshot3 = receive do {:result, message} -> message end
+
+        # snapshot2 = VideoCam.get_snapshot("cam-2")
+    # snapshot3 = VideoCam.get_snapshot("cam-3")
+
+
+    snapshots = [snapshot1, snapshot2, snapshot3]
+    %Conv{conv | status: 200, resp_body: inspect(snapshots)}
   end
 
   # Uma rota para dormir
