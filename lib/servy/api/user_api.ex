@@ -1,8 +1,8 @@
 defmodule Servy.Api.UserApi do
   def query(id) do
     api_url(id)
-    |> HTTPoison.get
-    |> handle_response
+    |> HTTPoison.get()
+    |> handle_response()
   end
 
   defp api_url(id) do
