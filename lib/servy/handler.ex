@@ -44,9 +44,6 @@ defmodule Servy.Handler do
     snapshot2 = receive do {:result, message} -> message end
     snapshot3 = receive do {:result, message} -> message end
 
-        # snapshot2 = VideoCam.get_snapshot("cam-2")
-    # snapshot3 = VideoCam.get_snapshot("cam-3")
-
 
     snapshots = [snapshot1, snapshot2, snapshot3]
     %Conv{conv | status: 200, resp_body: inspect(snapshots)}
