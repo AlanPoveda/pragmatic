@@ -12,6 +12,7 @@ defmodule Servy.Handler do
   alias Servy.Conv, as: Conv
   alias Servy.BearController
   alias Servy.VideoCam
+  alias Servy.Fetcher
 
   @doc """
   Transform the request a response
@@ -34,15 +35,13 @@ defmodule Servy.Handler do
 
   # Enviando mensagens e concurrency
   def route(%Conv{method: "GET", path: "/snapshots"} = conv) do
-    parent = self()
+    Fetcher.async(fn -> VideoCam.get_snapshot("cam-1") end)
+    Fetcher.async(fn -> VideoCam.get_snapshot("cam-2") end)
+    Fetcher.async(fn -> VideoCam.get_snapshot("cam-3") end)
 
-    spawn(fn -> send(parent, {:result, VideoCam.get_snapshot("cam-1")}) end)
-    spawn(fn -> send(parent, {:result, VideoCam.get_snapshot("cam-2")}) end)
-    spawn(fn -> send(parent, {:result, VideoCam.get_snapshot("cam-3")}) end)
-
-    snapshot1 = receive do {:result, message} -> message end
-    snapshot2 = receive do {:result, message} -> message end
-    snapshot3 = receive do {:result, message} -> message end
+    snapshot1 = Fetcher.get_response()
+    snapshot2 = Fetcher.get_response()
+    snapshot3 = Fetcher.get_response()
 
 
     snapshots = [snapshot1, snapshot2, snapshot3]
