@@ -13,6 +13,7 @@ defmodule Servy.Handler do
   alias Servy.BearController
   alias Servy.VideoCam
   alias Servy.Fetcher
+  alias Servy.Tracker
 
   @doc """
   Transform the request a response
@@ -35,17 +36,20 @@ defmodule Servy.Handler do
 
   # Enviando mensagens e concurrency
   def route(%Conv{method: "GET", path: "/snapshots"} = conv) do
-    Fetcher.async(fn -> VideoCam.get_snapshot("cam-1") end)
-    Fetcher.async(fn -> VideoCam.get_snapshot("cam-2") end)
-    Fetcher.async(fn -> VideoCam.get_snapshot("cam-3") end)
+    pid1 = Fetcher.async(fn -> VideoCam.get_snapshot("cam-1") end)
+    pid2 = Fetcher.async(fn -> VideoCam.get_snapshot("cam-2") end)
+    pid3 = Fetcher.async(fn -> VideoCam.get_snapshot("cam-3") end)
+    pid4 = Fetcher.async(fn -> Tracker.get_location("bigfoot") end)
 
-    snapshot1 = Fetcher.get_response()
-    snapshot2 = Fetcher.get_response()
-    snapshot3 = Fetcher.get_response()
+    snapshot1 = Fetcher.get_response(pid1)
+    snapshot2 = Fetcher.get_response(pid2)
+    snapshot3 = Fetcher.get_response(pid3)
+    where_is_the_bigfoot = Fetcher.get_response(pid4)
+
 
 
     snapshots = [snapshot1, snapshot2, snapshot3]
-    %Conv{conv | status: 200, resp_body: inspect(snapshots)}
+    %Conv{conv | status: 200, resp_body: inspect({snapshots, where_is_the_bigfoot})}
   end
 
   # Uma rota para dormir
