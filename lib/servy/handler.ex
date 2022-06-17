@@ -12,7 +12,6 @@ defmodule Servy.Handler do
   alias Servy.Conv, as: Conv
   alias Servy.BearController
   alias Servy.VideoCam
-  alias Servy.Fetcher
   alias Servy.Tracker
 
   @doc """
@@ -36,19 +35,18 @@ defmodule Servy.Handler do
 
   # Enviando mensagens e concurrency
   def route(%Conv{method: "GET", path: "/snapshots"} = conv) do
-    pid1 = Fetcher.async(fn -> VideoCam.get_snapshot("cam-1") end)
-    pid2 = Fetcher.async(fn -> VideoCam.get_snapshot("cam-2") end)
-    pid3 = Fetcher.async(fn -> VideoCam.get_snapshot("cam-3") end)
-    pid4 = Fetcher.async(fn -> Tracker.get_location("bigfoot") end)
 
-    snapshot1 = Fetcher.get_response(pid1)
-    snapshot2 = Fetcher.get_response(pid2)
-    snapshot3 = Fetcher.get_response(pid3)
-    where_is_the_bigfoot = Fetcher.get_response(pid4)
+    task = Task.async(fn -> Tracker.get_location("bigfoot") end)
 
+    snapshots =
+      ["cam-1", "cam-2", "cam- 3"]
+      |> Enum.map(&Task.async(fn -> VideoCam.get_snapshot(&1) end))
+      |> Enum.map(&Task.await(&1))
+    where_is_the_bigfoot = Task.await(task)
 
 
-    snapshots = [snapshot1, snapshot2, snapshot3]
+
+    #snapshots = [snapshot1, snapshot2, snapshot3]
     %Conv{conv | status: 200, resp_body: inspect({snapshots, where_is_the_bigfoot})}
   end
 
