@@ -8,6 +8,7 @@ defmodule Servy.Handler do
   import Servy.Plugins, only: [rewrite_path: 1, emojify: 1, track: 1]
   import Servy.Parser, only: [parse: 1]
   import Servy.FileHandler, only: [handle_read: 2]
+  import Servy.View, only: [render: 3]
 
   alias Servy.Conv, as: Conv
   alias Servy.BearController
@@ -45,9 +46,11 @@ defmodule Servy.Handler do
     where_is_the_bigfoot = Task.await(task)
 
 
-
+    # Este daqui é para renderizar o HTML
+    render(conv, "sensors.eex", snapshots: snapshots, location: where_is_the_bigfoot)
     #snapshots = [snapshot1, snapshot2, snapshot3]
-    %Conv{conv | status: 200, resp_body: inspect({snapshots, where_is_the_bigfoot})}
+    #%Conv{conv | status: 200, resp_body: inspect({snapshots, where_is_the_bigfoot})}
+
   end
 
   # Uma rota para dormir
@@ -156,8 +159,6 @@ defmodule Servy.Handler do
   # Este daqui é o delete
   def route(%Conv{method: "DELETE", path: "/bears/" <> id} = conv) do
     BearController.delete(conv, id)
-    # Logger.info("Tou can't delete a bear")
-    # %Conv{conv | resp_body: "You can't delete a bear #{id}", status: 403}
   end
 
   def route(%Conv{path: path} = conv) do
