@@ -19,5 +19,8 @@ defmodule Servy.Api.BearController do
     %Conv{conv | status: 201, resp_body: "Created a #{type} bear named #{name}!"}
   end
 
+  def delete(conv, id) do
+    %Conv{conv | resp_body: "You can't delete a bear #{id}", status: 403}
+  end
 
 end
