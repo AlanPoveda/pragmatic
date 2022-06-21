@@ -41,6 +41,7 @@ defmodule Servy.PledgeServer do
 
     # Aqui parece que trava o processo, e fica esperando receber a mensagem. Wait for condition
     receive do
+      # Aqui entra quando for criar
       {sender, :create_pledge, name, amount} ->
         {:ok, id } = send_pledge_to_server(name, amount)
         most_recent_pledges = Enum.take(state, 2)
@@ -48,12 +49,18 @@ defmodule Servy.PledgeServer do
         send(sender, {:response, id})
         # Aqui é a recursividade para ser chamado novamente
         listen_loop(new_state)
+      # Aqui entra para mostrar os recentes
       {sender, :recent_pledges } ->
         send(sender, {:response, state})
         listen_loop(state)
+      # Aqui entra para mostrar todos
       {sender, :total_pledges} ->
         total = Enum.map(state, &elem(&1, 1)) |> Enum.sum()
         send(sender, {:response, total})
+        listen_loop(state)
+      # Aqui entra quando é enviada uma mensagem que não é esperada
+      unexpected ->
+        IO.puts("Unexpected message #{inspect unexpected}")
         listen_loop(state)
     end
 
