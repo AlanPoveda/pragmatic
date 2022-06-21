@@ -9,24 +9,8 @@ defmodule Servy.PledgeServer do
     pid
   end
 
-  def listen_loop(state) do
 
-    # Aqui parece que trava o processo, e fica esperando receber a mensagem. Wait for condition
-    receive do
-      {sender, :create_pledge, name, amount} ->
-        {:ok, id } = send_pledge_to_server(name, amount)
-        most_recent_pledges = Enum.take(state, 2)
-        new_state = [ {name, amount} | most_recent_pledges ]
-        send(sender, {:response, id})
-        # Aqui é a recursividade para ser chamado novamente
-        listen_loop(new_state)
-      {sender, :recent_pledges } ->
-        send(sender, {:response, state})
-        listen_loop(state)
-    end
-
-  end
-
+  # Informações vindas do client
   def create_pledge(name, amount) do
     send(@process_name , {self(), :create_pledge, name, amount})
     # Guardado no cache
@@ -41,10 +25,40 @@ defmodule Servy.PledgeServer do
     receive do {:response, pledges} -> pledges end
   end
 
+  def total_pledges() do
+    send(@process_name, {self(), :total_pledges})
+    receive do {:response, total} -> total end
+  end
+
   defp send_pledge_to_server(_name, _amount) do
     # Este é o código que vai enviar para o serviço externo
     {:ok, "pledge-#{:rand.uniform(1000)}"}
   end
+
+
+  # Informações vindas do server
+  def listen_loop(state) do
+
+    # Aqui parece que trava o processo, e fica esperando receber a mensagem. Wait for condition
+    receive do
+      {sender, :create_pledge, name, amount} ->
+        {:ok, id } = send_pledge_to_server(name, amount)
+        most_recent_pledges = Enum.take(state, 2)
+        new_state = [ {name, amount} | most_recent_pledges ]
+        send(sender, {:response, id})
+        # Aqui é a recursividade para ser chamado novamente
+        listen_loop(new_state)
+      {sender, :recent_pledges } ->
+        send(sender, {:response, state})
+        listen_loop(state)
+      {sender, :total_pledges} ->
+        total = Enum.map(state, &elem(&1, 1)) |> Enum.sum()
+        send(sender, {:response, total})
+        listen_loop(state)
+    end
+
+  end
+
 end
 
 
@@ -61,3 +75,5 @@ end
 
 
 # IO.inspect(PledgeServer.recent_pledges())
+
+# IO.inspect(PledgeServer.total_pledges())
