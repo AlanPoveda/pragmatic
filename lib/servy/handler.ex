@@ -29,6 +29,14 @@ defmodule Servy.Handler do
     |> format_response()
   end
 
+  def route(%Conv{method: "GET", path: "/pledges"} = conv) do
+    Servy.PledgeController.create(conv, conv.params)
+  end
+
+  def route(%Conv{method: "POST", path: "/pledges"} = conv) do
+    Servy.PledgeController.index(conv)
+  end
+
   # Uma rota para parar o servidor, um erro
   def route(%Conv{method: "GET", path: "/kaboom"}) do
     raise "Kabumm !"
@@ -44,7 +52,6 @@ defmodule Servy.Handler do
       |> Enum.map(&Task.async(fn -> VideoCam.get_snapshot(&1) end))
       |> Enum.map(&Task.await(&1))
     where_is_the_bigfoot = Task.await(task)
-
 
     # Este daqui é para renderizar o HTML
     render(conv, "sensors.eex", snapshots: snapshots, location: where_is_the_bigfoot)
