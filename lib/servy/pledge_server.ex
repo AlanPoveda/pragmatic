@@ -6,6 +6,7 @@ defmodule Servy.PledgeServer do
     IO.puts("Start the Pledge Server")
     pid = spawn(__MODULE__, :listen_loop, [[]])
     Process.register(pid, @process_name )
+    pid
   end
 
   def listen_loop(state) do
