@@ -2,6 +2,7 @@ defmodule Servy.PledgeServer do
 
   @process_name :pledge_server
 
+  # Inicia o processo e ainda salva num atom o nome do processo
   def start() do
     IO.puts("Start the Pledge Server")
     pid = spawn(__MODULE__, :listen_loop, [[]])
