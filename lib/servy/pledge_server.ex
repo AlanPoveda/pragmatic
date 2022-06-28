@@ -1,11 +1,14 @@
 defmodule Servy.PledgeServer do
 
+  # Aqui guarda o número do PID em um atomo para dps ser usado
   @process_name :pledge_server
 
   # Inicia o processo e ainda salva num atom o nome do processo
   def start() do
     IO.puts("Start the Pledge Server")
     pid = spawn(__MODULE__, :listen_loop, [[]])
+
+    # Aqui onde é registrado o PID a essa atributo de módulo
     Process.register(pid, @process_name )
     pid
   end
