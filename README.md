@@ -6,5 +6,9 @@ para entender como funciona as requisições web
 ## Installation
 Para instalação, somente clonar e executar 
 
-´´´ mix deps.gets ´´´
+ˋˋˋ
+ 
+mix deps.gets 
+
+ˋˋˋ
 
