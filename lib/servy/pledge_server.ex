@@ -28,7 +28,8 @@ defmodule Servy.PledgeServer do
   # Este é uma forma generica e assincrona de fazer as chamadas são chamadas lá encima
   def call(pid, message) do
     send(pid, {self(), message})
-    # Guardado no cache
+
+    # Aqui ele responde o que ele recebe do lado do server. A resposta, conforme a mensagem enviada
     receive do
       {:response, response} -> response
     end
@@ -95,11 +96,11 @@ alias Servy.PledgeServer
 
 PledgeServer.start()
 
-IO.inspect PledgeServer.create_pledge("alan", 26)
-IO.inspect PledgeServer.create_pledge("natalia", 26)
-IO.inspect PledgeServer.create_pledge("biel", 24)
-IO.inspect PledgeServer.create_pledge("davida", 12)
-IO.inspect PledgeServer.create_pledge("gaby", 18)
+IO.inspect(PledgeServer.create_pledge("alan", 26))
+IO.inspect(PledgeServer.create_pledge("natalia", 26))
+IO.inspect(PledgeServer.create_pledge("biel", 24))
+IO.inspect(PledgeServer.create_pledge("davida", 12))
+IO.inspect(PledgeServer.create_pledge("gaby", 18))
 
 IO.inspect(PledgeServer.recent_pledges())
 
