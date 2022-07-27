@@ -10,21 +10,21 @@ Tem testes unitários em cada request que é feita.
 ## Installation
 Para instalação, somente clonar e executar, não faz uso de banco de dados esta aplicação
 
-ˋˋˋ
+ˋˋ
  
 mix deps.gets 
 
-ˋˋˋ
+ˋˋ
 
 Para executar o servidor
 
-ˋˋˋ
+ˋˋ
  
 iex -S mix
 
 Servy.HttpServer.start(4000)
 
-ˋˋˋ
+ˋˋ
 
 As rotas que existem
 
