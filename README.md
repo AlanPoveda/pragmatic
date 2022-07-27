@@ -10,11 +10,11 @@ Tem testes unitários em cada request que é feita.
 ## Installation
 Para instalação, somente clonar e executar, não faz uso de banco de dados esta aplicação
 
-ˋˋ
+<pre><code>
  
 mix deps.gets 
 
-ˋˋ
+</code></pre>
 
 Para executar o servidor
 
