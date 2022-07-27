@@ -18,13 +18,13 @@ mix deps.gets
 
 Para executar o servidor
 
-ˋˋ
+<pre><code>
  
 iex -S mix
 
 Servy.HttpServer.start(4000)
 
-ˋˋ
+</code></pre>
 
 As rotas que existem
 
